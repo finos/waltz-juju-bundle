@@ -1,0 +1,29 @@
+# Copyright 2022 Canonical
+# See LICENSE file for licensing details.
+
+name: finos-waltz-bundle
+
+bundle: kubernetes
+
+applications:
+  postgresql:
+    charm: "postgresql-k8s"
+    channel: "stable"
+    scale: 1
+
+  finos-waltz:
+    charm: "finos-waltz-k8s"
+    channel: "edge"
+    scale: 1
+
+  waltz-ingress:
+    charm: "nginx-ingress-integrator"
+    channel: "stable"
+    scale: 1
+    trust: true
+
+relations:
+  # Waltz DB relation:
+  - ["postgresql:db", "finos-waltz:db"]
+  # Waltz ingress relation:
+  - ["waltz-ingress", "finos-waltz"]
