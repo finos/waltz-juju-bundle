@@ -1,0 +1,82 @@
+name: Publish FINOS Waltz Images
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Runs everyday at 00:00. (see https://crontab.guru)
+    - cron: '0 0 * * *'
+
+jobs:
+  publish-images:
+    name: Publish Waltz Images
+    runs-on: ubuntu-20.04
+    env:
+      CHARMCRAFT_AUTH: "${{ secrets.CHARMCRAFT_AUTH }}"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: edge
+          fetch-depth: 0
+
+      - name: Install Docker
+        uses: docker-practice/actions-setup-docker@master
+
+      - name: Install Dependencies
+        run: |
+          sudo snap install jq
+          sudo snap install charmcraft --classic
+
+          # Install skopeo for inspecting the image tags.
+          # https://github.com/containers/skopeo/blob/main/install.md
+          . /etc/os-release
+          echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+          curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key | sudo apt-key add -
+          sudo apt-get update
+          sudo apt-get -y install skopeo
+
+      - name: Upload Docker images to Charmhub
+        run: |
+          set -x
+
+          release_charm_with_image(){
+            img_version="$1"
+
+            # Use . as a delimiter, and get only the major and minor versions (first 2 fields).
+            short_version=$(echo ${{ github.event.inputs.release }} | cut -d. -f1-2)
+
+            # Pulling the image.
+            image="ghcr.io/finos/waltz:${img_version}"
+            docker pull "${image}"
+
+            # Get the image SHA.
+            image_sha=$(docker inspect --format '{{ .Id }}' ${image})
+
+            # Upload image to Charmhub. CHARMCRAFT_AUTH should be loaded in the environment, and
+            # it should have sufficient permissions to push the resource.
+            charmcraft upload-resource --quiet finos-waltz-k8s waltz-image --image=${image_sha}
+
+            # Get the last revision number and image revision number and release.
+            charm_rev=$(charmcraft revisions finos-waltz-k8s | awk 'FNR == 2 {print $1}')
+            img_rev=$(charmcraft resource-revisions finos-waltz-k8s waltz-image | awk 'FNR == 2 {print $1}')
+            charmcraft release finos-waltz-k8s --revision=${charm_rev} --channel="${release_short}/edge" --resource="waltz-image:${img_rev}"
+
+            # Also release it as the latest.
+            charmcraft release finos-waltz-k8s --revision=${charm_rev} --channel=edge --resource="waltz-image:${img_rev}"
+          }
+
+          # This command will get all the image tags currently published in ghcr.io/finos/waltz
+          # and filter out any non-SemVer tags, any alpha / beta/ rc tags,
+          # and it will filter the image tag 10.0.0 (test release tag)
+          declare -a img_versions=$(skopeo list-tags docker://ghcr.io/finos/waltz | jq -r '.Tags[] | select(test("^([0-9]*\\.){1,2}[0-9]+$")) | select(. != "10.0.0")'
+          for img_version in "${img_versions[@]}"
+          do
+            echo "Treating ${img_version}..."
+            # If the current release was already published, skip.
+            if charmcraft status finos-waltz-k8s | grep $img_version
+            then
+              continue
+            fi
+
+            release_charm_with_image "${img_version}"
+          done

@@ -11,6 +11,10 @@ This repository contains a [Juju](https://juju.is) bundle for FINOS Waltz, which
 
 For more information on Waltz and how to deploy it using Juju, see the [FINOS Waltz Charm's README](https://github.com/pedroleaoc/waltz-integration-juju/blob/main/README.md) and [local deployment guide](https://github.com/pedroleaoc/waltz-integration-juju/blob/main/docs/LocalDeployment.md).
 
+## FINOS Waltz Resource Updates
+
+This repository is set up to be able to release a new ``finos-waltz-k8s`` charm revision with the latest Waltz docker image. For more information, see [here](docs/CharmPublishing.md).
+
 ## Contributing
 
 1. Fork it (<https://github.com/finos/waltz-juju-bundle/fork>)
