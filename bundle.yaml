@@ -11,10 +11,27 @@ applications:
     channel: "stable"
     scale: 1
 
+  postgresql-data:
+    charm: "postgresql-data-k8s"
+    channel: "edge"
+    scale: 1
+    options:
+      # Refresh period is in minutes.
+      refresh-period: 120
+      # The sql-dump-url must be either .tar, or a .tar.gz
+      # postgres-dump-1.40.sql.gz is a .tar.gz, despite its name.
+      sql-dump-url: https://github.com/finos/waltz/files/8390039/postgres-dump-1.40.sql.gz
+      # Same db-name and db-user as the finos-waltz-k8s charm.
+      db-name: waltz
+      db-user: finos-waltz
+
   finos-waltz:
     charm: "finos-waltz-k8s"
     channel: "edge"
     scale: 1
+    options:
+      db-name: waltz
+      db-username: finos-waltz
 
   waltz-ingress:
     charm: "nginx-ingress-integrator"
@@ -25,5 +42,6 @@ applications:
 relations:
   # Waltz DB relation:
   - ["postgresql:db", "finos-waltz:db"]
+  - ["postgresql:db-admin", "postgresql-data:db-admin"]
   # Waltz ingress relation:
   - ["waltz-ingress", "finos-waltz"]
