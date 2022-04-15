@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          ref: edge
+          ref: main
           fetch-depth: 0
 
       - name: Install Docker
@@ -68,12 +68,12 @@ jobs:
           # This command will get all the image tags currently published in ghcr.io/finos/waltz
           # and filter out any non-SemVer tags, any alpha / beta/ rc tags,
           # and it will filter the image tag 10.0.0 (test release tag)
-          declare -a img_versions=$(skopeo list-tags docker://ghcr.io/finos/waltz | jq -r '.Tags[] | select(test("^([0-9]*\\.){1,2}[0-9]+$")) | select(. != "10.0.0")'
+          declare -a img_versions=($(skopeo list-tags docker://ghcr.io/finos/waltz | jq -r '.Tags[] | select(test("^([0-9]*\\.){1,2}[0-9]+$")) | select(. != "10.0.0")'))
           for img_version in "${img_versions[@]}"
           do
             echo "Treating ${img_version}..."
             # If the current release was already published, skip.
-            if charmcraft status finos-waltz-k8s | grep $img_version
+            if git show-ref --verify --quiet "refs/heads/release-${img_version}"
             then
               continue
             fi
