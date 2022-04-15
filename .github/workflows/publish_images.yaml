@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       CHARMCRAFT_AUTH: "${{ secrets.CHARMCRAFT_AUTH }}"
+      GH_TOKEN: "${{ secrets.GH_TOKEN }}"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -59,7 +60,7 @@ jobs:
             # Get the last revision number and image revision number and release.
             charm_rev=$(charmcraft revisions finos-waltz-k8s | awk 'FNR == 2 {print $1}')
             img_rev=$(charmcraft resource-revisions finos-waltz-k8s waltz-image | awk 'FNR == 2 {print $1}')
-            charmcraft release finos-waltz-k8s --revision=${charm_rev} --channel="${release_short}/edge" --resource="waltz-image:${img_rev}"
+            charmcraft release finos-waltz-k8s --revision=${charm_rev} --channel="${short_version}/edge" --resource="waltz-image:${img_rev}"
 
             # Also release it as the latest.
             charmcraft release finos-waltz-k8s --revision=${charm_rev} --channel=edge --resource="waltz-image:${img_rev}"
@@ -79,4 +80,9 @@ jobs:
             fi
 
             release_charm_with_image "${img_version}"
+
+            # Dispatch the create_release.yaml workflow, which will create the release branch,
+            # create a commit that will make bundle.yaml point towards this release, and publish
+            # the bundle into Charmhub.
+            gh workflow run create_release.yaml -f release="${img_version}"
           done
