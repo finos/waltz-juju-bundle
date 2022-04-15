@@ -43,7 +43,7 @@ jobs:
             img_version="$1"
 
             # Use . as a delimiter, and get only the major and minor versions (first 2 fields).
-            short_version=$(echo ${{ github.event.inputs.release }} | cut -d. -f1-2)
+            short_version=$(echo "${img_version}" | cut -d. -f1-2)
 
             # Pulling the image.
             image="ghcr.io/finos/waltz:${img_version}"
