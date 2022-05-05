@@ -36,7 +36,7 @@ jobs:
           # and apply it over the bundle.yaml file.
           echo "applications:" > overlay.yaml
           echo "  finos-waltz:" >> overlay.yaml
-          echo "    channel: ${{ steps.release-short.outputs.short_version }}" }}/edge" >> overlay.yaml
+          echo "    channel: ${{ steps.release-short.outputs.short_version }}/edge" >> overlay.yaml
 
           # We can't have bundle.yaml as both the source and destionation, the result will not be
           # as we would have wanted it.
@@ -73,8 +73,13 @@ jobs:
           new_branch: "release-${{ github.event.inputs.release }}"
 
       - name: Upload bundle to edge
-        uses: canonical/charming-actions/upload-bundle@1.0.2
-        with:
-          credentials: "${{ secrets.CHARMCRAFT_AUTH }}"
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
-          channel: "${{ steps.release-short.outputs.short_version }}/edge"
+        # TODO: replace with  canonical/charming-actions/upload-bundle once the following issue
+        # is resolved: https://github.com/canonical/charming-actions/issues/40
+        env:
+          CHARMCRAFT_AUTH: "${{ secrets.CHARMCRAFT_AUTH }}"
+        run: |
+          charmcraft pack
+          charmcraft upload finos-waltz-bundle.zip
+          # Get the last revision number and image revision number and release.
+          bundle_rev=$(charmcraft revisions finos-waltz-bundle | awk 'FNR == 2 {print $1}')
+          charmcraft release finos-waltz-bundle --revision=${bundle_rev} --channel="${{ steps.release-short.outputs.short_version }}/edge"
