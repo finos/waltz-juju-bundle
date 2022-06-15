@@ -9,7 +9,7 @@ A Charmed bundle containing everything needed to deploy and operate Waltz on a K
 * [**postgresql-k8s**](https://charmhub.io/postgresql-k8s), responsible for creating a PostgreSQL database on demand for the related ``finos-waltz-k8s`` charm.
 * [**nginx-ingress-integrator**](https://charmhub.io/nginx-ingress-integrator), which manages the ingress traffic for the related ``finos-waltz-k8s`` charm, allowing users to connect to Waltz through a friendly, configurable ``service-hostname`` instead of an ephemeral IP.
 
->💡If you are evaluating Waltz, you can follow [this guide](/docs/guides/LocalDeployment.md) for a quick 10-minutes Waltz deployment. You will also learn how to provision a K8s cluster on your laptop using MicroK8s. You don't need to have any previous Kubernetes knowlodge!
+>💡If you are evaluating Waltz, you can follow [this guide](/docs/guides/LocalDeployment.md) for a quick 10-minutes Waltz deployment. You will also learn how to provision a K8s cluster on your laptop using MicroK8s. You don't need to have any previous Kubernetes knowledge!
 
 ## Waltz 
 From the projects [repository](https://github.com/finos/waltz):
