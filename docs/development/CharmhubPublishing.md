@@ -7,9 +7,15 @@ This action requires the ``CHARMCRAFT_AUTH`` repository secret (Settings > Secre
 ```bash
 charmcraft login --export=secrets-waltz.auth --charm=finos-waltz-k8s \
       --bundle=finos-waltz-bundle --permission=package-view-revisions \
-      --permission=package-manage --ttl=1576800
+      --permission=package-manage --ttl=15780000
 ```
 
-This token will have to be updated periodically since it has a certain time to live set.
+This token will have to be updated periodically since it has a certain time to live set. If the `charmcraft` process fails with the message "Provided credentials are no longer valid for Charmhub. Regenerate them and try again.", it means you have to export the secrets again by logging in to charmcraft using the instructions written above.
+
+By using the following `gh` command you can skip going through the repository settings to set the secret token:
+
+```bash
+gh -R finos/waltz-juju-bundle secret set CHARMHUB_TOKEN < secrets-waltz.auth
+```
 
 The ``Publish Waltz Images`` action will trigger the ``Create FINOS Waltz release branch`` [action](../.github/workflows/create_release.yaml), which will create a new branch in the repository for the new release. This action can also be manually dispatched. But in order for this action chain to work, the ``GH_TOKEN`` repository secret needs to be added. The token can be [generated](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) with the ``repo, workflow`` scopes.
