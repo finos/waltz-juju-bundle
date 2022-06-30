@@ -21,6 +21,8 @@ applications:
     channel: "stable"
     scale: 1
     trust: true
+    options:
+      rewrite-enabled: false
 
 relations:
   # Waltz DB relation:
