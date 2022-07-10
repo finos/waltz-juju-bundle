@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     # Runs everyday at 00:00. (see https://crontab.guru)
-    - cron: '0 0 * * *'
+    - cron: "0 0 * * *"
 
 jobs:
   publish-images:
@@ -85,4 +85,17 @@ jobs:
             # create a commit that will make bundle.yaml point towards this release, and publish
             # the bundle into Charmhub.
             gh workflow run create_release.yaml -f release="${img_version}"
+
+            # Wait until the branch is created
+            branch_url_code=$(curl -s -o /dev/null -w "%{http_code}" https://github.com/finos/waltz-juju-bundle/tree/release-${img_version})
+            while [ $branch_url_code -ne 200 ]
+              do
+                branch_url_code=$(curl -s -o /dev/null -w "%{http_code}" https://github.com/finos/waltz-juju-bundle/tree/release-${img_version})
+                echo Waiting for release-${img_version} branch to be created
+                echo $branch_url_code
+                sleep 30
+            done
+
+            gh workflow run create_overlay.yaml -f release="${img_version}" \
+              -f waltz-image="ghcr.io/finos/waltz:${img_version}"
           done
