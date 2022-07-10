@@ -1,0 +1,71 @@
+name: Create FINOS Waltz release overlay
+
+on:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "The release to create an overlay for (yyyy-mm-dd)"
+        type: string
+        required: true
+      waltz-image:
+        description: "The FINOS Waltz image used in the overlay"
+        type: string
+        required: true
+
+jobs:
+  create-overlay:
+    name: Create release overlay.yaml
+    runs-on: ubuntu-latest
+    steps:
+      - id: release-short
+        run: |
+          # Use - as a delimiter, and get only the year and month (first 2 fields).
+          yyyy_mm=$(echo ${{ github.event.inputs.release }} | cut -d- -f1-2)
+          echo "::set-output name=yyyy_mm::$yyyy_mm"
+
+      - name: Checkout main branch
+        uses: actions/checkout@v3
+        with:
+          ref: "main"
+          fetch-depth: 0
+
+      - name: Checkout release-${{ github.event.inputs.release }} branch
+        uses: actions/checkout@v3
+        with:
+          ref: release-${{ github.event.inputs.release }}
+          fetch-depth: 0
+          clean: false
+
+      - name: Update bundle.yaml
+        run: |
+          # Create an overlay yaml file with the desired release version for Waltz
+          # and apply it over the bundle.yaml file.
+          overlay_file="overlay-${{ github.event.inputs.release }}.yaml"
+          echo "applications:" > $overlay_file
+          echo "  finos-waltz:" >> $overlay_file
+          echo "    channel: ${{ steps.release-short.outputs.yyyy_mm }}/edge" >> $overlay_file
+          echo "    resources:" >> $overlay_file
+          echo "      waltz-image: ${{ github.event.inputs.waltz-image }}" >> $overlay_file
+
+      - name: Create commit
+        uses: EndBug/add-and-commit@v9 # You can change this to use a specific version.
+        with:
+          # The arguments for the `git add` command (see the paragraph below for more info)
+          # Default: '.'
+          add: "overlay-${{ github.event.inputs.release }}.yaml"
+
+          # The name of the user that will be displayed as the author of the commit.
+          # Default: depends on the default_author input
+          author_name: Claudiu Belu
+
+          # The email of the user that will be displayed as the author of the commit.
+          # Default: depends on the default_author input
+          author_email: cbelu@cloudbasesolutions.com
+
+          # Additional arguments for the git commit command. The --message argument is already set by the message input.
+          # Default: ''
+          commit: --signoff
+
+          # The message for the commit.
+          # Default: 'Commit from GitHub Actions (name of the workflow)'
+          message: "Creates ${{ github.event.inputs.release }} release overlay.yaml file"
