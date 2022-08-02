@@ -2,6 +2,12 @@
 
 [![Get it from the Charmhub](https://charmhub.io/finos-waltz-bundle/badge.svg)](https://charmhub.io/finos-waltz-bundle)
 
+[![Create FINOS Waltz release branch](https://github.com/finos/waltz-juju-bundle/actions/workflows/create_release.yaml/badge.svg)](https://github.com/finos/waltz-juju-bundle/actions/workflows/create_release.yaml)
+[![Publish FINOS Waltz Images](https://github.com/finos/waltz-juju-bundle/actions/workflows/publish_images.yaml/badge.svg)](https://github.com/finos/waltz-juju-bundle/actions/workflows/publish_images.yaml)
+[![Refresh EC2 FINOS Waltz deployment](https://github.com/finos/waltz-integration-juju/actions/workflows/refresh_deployment.yaml/badge.svg)](https://github.com/finos/waltz-integration-juju/actions/workflows/refresh_deployment.yaml)
+[![Publish Charm](https://github.com/finos/waltz-integration-juju/actions/workflows/publish.yaml/badge.svg)](https://github.com/finos/waltz-integration-juju/actions/workflows/publish.yaml)
+[![Renew the CA-verified Certificate](https://github.com/finos/waltz-integration-juju/actions/workflows/renew_certificate.yaml/badge.svg)](https://github.com/finos/waltz-integration-juju/actions/workflows/renew_certificate.yaml)
+
 # Charmed Waltz
 A Charmed bundle containing everything needed to deploy and operate Waltz on a Kubernetes cluster: 
 
