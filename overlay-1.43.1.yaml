@@ -1,0 +1,5 @@
+applications:
+  finos-waltz:
+    channel: 1.43.1/edge
+    resources:
+      waltz-image: ghcr.io/finos/waltz:1.43.1
