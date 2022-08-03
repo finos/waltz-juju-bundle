@@ -79,7 +79,8 @@ jobs:
           CHARMCRAFT_AUTH: "${{ secrets.CHARMHUB_TOKEN }}"
         run: |
           charmcraft pack
-          charmcraft upload finos-waltz-bundle.zip
+          charmcraft whoami
+          charmcraft upload finos-waltz-bundle.zip --verbose
           # Get the last revision number and image revision number and release.
           bundle_rev=$(charmcraft revisions finos-waltz-bundle | awk 'FNR == 2 {print $1}')
-          charmcraft release finos-waltz-bundle --revision=${bundle_rev} --channel="${{ steps.release-short.outputs.short_version }}/edge"
+          charmcraft release finos-waltz-bundle --revision=${bundle_rev} --channel="${{ steps.release-short.outputs.short_version }}/edge" --verbose
