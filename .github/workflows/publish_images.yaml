@@ -50,8 +50,8 @@ jobs:
             image="ghcr.io/finos/waltz:${img_version}"
             docker pull "${image}"
 
-            # Get the image SHA.
-            image_sha=$(docker inspect --format '{{ .Id }}' ${image})
+            # Get the image SHA. charmcraft expects it without the sha:256 prefix, so we need to cut it.
+            image_sha=$(docker inspect --format '{{ .Id }}' ${image} | cut -d: -f2)
 
             # Upload image to Charmhub. CHARMCRAFT_AUTH should be loaded in the environment, and
             # it should have sufficient permissions to push the resource.
@@ -74,7 +74,8 @@ jobs:
           do
             echo "Treating ${img_version}..."
             # If the current release was already published, skip.
-            if git show-ref --verify --quiet "refs/heads/release-${img_version}"
+            # refs have the following format: refs/remotes/origin/release-.*
+            if git show-ref --verify --quiet "refs/remotes/origin/release-${img_version}"
             then
               continue
             fi
