@@ -18,7 +18,8 @@ applications:
 
   waltz-ingress:
     charm: "nginx-ingress-integrator"
-    channel: "stable"
+    channel: "edge"
+    revision: 79
     scale: 1
     trust: true
     options:
