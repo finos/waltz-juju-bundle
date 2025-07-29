@@ -9,7 +9,7 @@ on:
 jobs:
   publish-images:
     name: Publish Waltz Images
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       CHARMCRAFT_AUTH: "${{ secrets.CHARMHUB_TOKEN }}"
       GH_TOKEN: "${{ secrets.GH_TOKEN }}"
