@@ -47,7 +47,7 @@ jobs:
             short_version=$(echo "${img_version}" | cut -d. -f1-2)
 
             # Pulling the image.
-            image="ghcr.io/finos/waltz:${img_version}"
+            image="ghcr.io/finos/waltz:postgres-${img_version}"
             docker pull "${image}"
 
             # Get the image SHA. charmcraft expects it without the sha:256 prefix, so we need to cut it.
@@ -98,7 +98,7 @@ jobs:
             done
 
             gh workflow run create_overlay.yaml -f release="${img_version}" \
-              -f waltz-image="ghcr.io/finos/waltz:${img_version}"
+              -f waltz-image="ghcr.io/finos/waltz:postgres-${img_version}"
           done
       - name: Send Email on Failure
         if: failure() && github.event_name == 'schedule'
