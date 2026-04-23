@@ -1,0 +1,5 @@
+applications:
+  finos-waltz:
+    channel: 1.81.0/edge
+    resources:
+      waltz-image: ghcr.io/finos/waltz:postgres-1.81.0
